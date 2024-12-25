@@ -13,6 +13,7 @@ import {
   TouchableOpacity
 } from "react-native";
 import React, { useState } from "react";
+import { KeyboardAvoidingView, Platform } from "react-native";
 
 // Start component
 const Start = ({ navigation }) => {
@@ -101,7 +102,10 @@ const Start = ({ navigation }) => {
           <Text style={styles.buttonText}>Start Chatting</Text>
         </TouchableOpacity>
       </View>
+      {/* KeyboardAvoidingView to handle the keyboard behavior. */}
+      {Platform.OS === 'ios' ? <KeyboardAvoidingView behavior="padding" /> : null}
     </ImageBackground>
+    
   );
 };
 
@@ -109,7 +113,7 @@ const styles = StyleSheet.create({
   backgroundMain: {
     flex: 1,
     resizeMode: 'cover',
-    paddingBottom: 20,
+    // paddingBottom: 20,
     justifyContent: 'space-between',
     alignItems: 'center',
   },
