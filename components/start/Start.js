@@ -13,6 +13,7 @@ import {
   TouchableOpacity
 } from "react-native";
 import React, { useState } from "react";
+import { KeyboardAvoidingView, Platform } from "react-native";
 
 // Start component
 const Start = ({ navigation }) => {
@@ -63,6 +64,10 @@ const Start = ({ navigation }) => {
       <View style={styles.container}>
         <View style={styles.inputContainer}>
           <TextInput
+            accessible={true}
+            accessibilityLabel="More options"
+            accessibilityHint="Type your name to enter the chat."
+            accessibilityRole="text"
             value={name}
             onChangeText={handleName}
             style={styles.textInput}
@@ -82,6 +87,10 @@ const Start = ({ navigation }) => {
           */}
             {colorStyles.map((item, index) => (
               <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="More options"
+              accessibilityHint="Choose a background color for the chat."
+              accessibilityRole="button"
                 key={index}
                 style={[
                     styles.bgColorBtn, 
@@ -95,13 +104,20 @@ const Start = ({ navigation }) => {
           </View>
         </View>
         <TouchableOpacity
+          accessible={true}
+          accessibilityLabel="More options"
+          accessibilityHint="Enter the chat room."
+          accessibilityRole="button"
           style={styles.button}
           onPress={handleEnterChat}
         >
           <Text style={styles.buttonText}>Start Chatting</Text>
         </TouchableOpacity>
       </View>
+      {/* KeyboardAvoidingView to handle the keyboard behavior. */}
+      {Platform.OS === 'ios' ? <KeyboardAvoidingView style={styles.keyboardAvoidingView} behavior="padding" /> : null}
     </ImageBackground>
+    
   );
 };
 
@@ -189,6 +205,9 @@ const styles = StyleSheet.create({
   lightGreen: {
     backgroundColor: '#B9C6AE',
   },
+  keyboardAvoidingView: {
+    margin: 0
+  }
 });
 
 export default Start;
