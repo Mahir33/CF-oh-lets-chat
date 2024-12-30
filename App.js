@@ -1,4 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet} from 'react-native';
+import { 
+  API_KEY, 
+  AUTH_DOMAIN, 
+  PROJECT_ID, 
+  STORAGE_BUCKET, 
+  MESSAGING_SENDER_ID, 
+  APP_ID 
+} from '@env';
+
 
 // Importing components
 import Start from './components/start/Start.js';
@@ -19,14 +28,14 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
 
-  // Firebase configuration
+  // Secured firebase configuration
   const firebaseConfig = {
-    apiKey: "AIzaSyAcwZk2_UVrNHrRW9UQHqPlZoZCmw7l0Ro",
-    authDomain: "ohletsmeetapp.firebaseapp.com",
-    projectId: "ohletsmeetapp",
-    storageBucket: "ohletsmeetapp.firebasestorage.app",
-    messagingSenderId: "708963268313",
-    appId: "1:708963268313:web:d11c43e5336e5a1dc0f0c8"
+    apiKey: API_KEY,
+    authDomain: AUTH_DOMAIN,
+    projectId: PROJECT_ID,
+    storageBucket: STORAGE_BUCKET,
+    messagingSenderId: MESSAGING_SENDER_ID,
+    appId: APP_ID
   };
   
   // Initialize Firebase
