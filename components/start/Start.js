@@ -13,10 +13,14 @@ import {
   TouchableOpacity
 } from "react-native";
 import React, { useState } from "react";
-import { KeyboardAvoidingView, Platform } from "react-native";
+import { KeyboardAvoidingView, Platform, Alert } from "react-native";
+import { getAuth, signInAnonymously } from "firebase/auth";
 
 // Start component
 const Start = ({ navigation }) => {
+
+  // Firebase authentication
+  const auth = getAuth();
   
   // State variables to store the user's name, selected background color, and error message
   const [name, setName] = useState('');
@@ -36,11 +40,18 @@ const Start = ({ navigation }) => {
   // If the name input is not empty and its length is at least longer than 2 characters, the user will be navigated to the chat screen.
   // The user's name and selected background color will be passed to the chat screen.
   // The name input will be cleared after navigation.
-  const handleEnterChat = () => {
-    if (name === '' && name.length > 2) {
+  const signInUser = () => {
+    if (name === '' || name.length <= 2) {
       setErrMessage('Please enter your name');
     } else {
-      navigation.navigate('Chat', {name: name, color: color});
+      signInAnonymously(auth)
+        .then(result => {
+            navigation.navigate("Chat", {userID: result.user.uid, color, name});
+            Alert.alert("Signed in Successfully!");
+    })
+        .catch((error) => {
+            Alert.alert("Unable to sign in, try later again.");
+            })
       setName('');
     }
   }
@@ -109,7 +120,7 @@ const Start = ({ navigation }) => {
           accessibilityHint="Enter the chat room."
           accessibilityRole="button"
           style={styles.button}
-          onPress={handleEnterChat}
+          onPress={signInUser}
         >
           <Text style={styles.buttonText}>Start Chatting</Text>
         </TouchableOpacity>
