@@ -41,17 +41,21 @@ const Start = ({ navigation }) => {
   // The user's name and selected background color will be passed to the chat screen.
   // The name input will be cleared after navigation.
   const signInUser = () => {
+    // If the name input is empty or less than 2 characters, display an error message.
     if (name === '' || name.length <= 2) {
       setErrMessage('Please enter your name');
     } else {
+      // Sign in anonymously
       signInAnonymously(auth)
         .then(result => {
+            // Navigate to the Chat screen with the user's ID, selected color, and name
             navigation.navigate("Chat", {userID: result.user.uid, color, name});
             Alert.alert("Signed in Successfully!");
     })
         .catch((error) => {
             Alert.alert("Unable to sign in, try later again.");
             })
+      // Clear the name input after navigation
       setName('');
     }
   }
