@@ -1,96 +1,126 @@
-// Purpose: This file contains the Chat component, which is the screen where the user can chat with others.
-// The Chat component displays the user's name and sets the background color based on the user's selection in the Start component.
-// The Chat component uses the useEffect hook to set the navigation title to the user's name.
-
-// Import statements
-import { GiftedChat } from 'react-native-gifted-chat';
+// Import necessary libraries and dependencies
+import { collection, addDoc, onSnapshot, query, where, orderBy } from "firebase/firestore";
 import { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { 
-    collection, 
-    addDoc, 
-    onSnapshot, 
-    query, 
-    where, 
-    orderBy 
-} from "firebase/firestore";
-import { v4 as uuidv4 } from 'uuid';
+import { StyleSheet, View, Text, KeyboardAvoidingView, Platform} from 'react-native';
 
-// Chat component
-const Chat = ({route, navigation, db}) => {
+import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
 
-    // State variable to store the messages in the chat
-    const [ messages, setMessages ] = useState([]);
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-    // Extract the name, color and userID from the Start component
-    const {name, color, userID} = route.params;
 
-    useEffect(() => {
-        // Set the navigation title to the name passed in the route parameters
-        navigation.setOptions({title: name});
 
-        // Set the initial messages in the chat
-        const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), where ("uid", "==", userID));
-        // Listen to the query
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            let newMessages = [];
-            querySnapshot.forEach((docObject) => {
-                newMessages.push(docObject.data());
-            });
-            // Set the messages in the chat
-            setMessages(newMessages);
+const Chat = ({ route, navigation, db, isConnected }) => {
+  // Destructure the route object to get the name, background, and userID 
+  const { name, color, userID } = route.params;
+
+  // Initialize the messages state variable
+  const [ messages, setMessages ] = useState([]);
+
+  // Update the title of the chat screen and set the color of the title
+  useEffect(() => {
+    navigation.setOptions({ name, color });
+  }, []);
+  
+
+  
+  let unsubscribeMessages;
+
+  useEffect(() => {
+
+    if (isConnected === true) {
+
+      // unregister current onSnapshot() listener to avoid registering multiple listeners when
+      // useEffect code is re-executed.
+      if (unsubscribeMessages) unsubscribeMessages();
+      unsubscribeMessages = null;
+
+    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+    unsubscribeMessages = onSnapshot(q, (docs) => {
+      let newMessages = [];
+      docs.forEach(doc => {
+        newMessages.push({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: new Date(doc.data().createdAt.toMillis())
         })
-        // Unsubscribe from the listener when the component unmounts
-        return () => {
-            if (unsubscribe) unsubscribe();
+      })
+      cacheMessages(newMessages);
+      setMessages(newMessages);
+    });
+  } else loadCachedMessages();
+
+
+    return () => {
+      if (unsubscribeMessages) unsubscribeMessages();
+    }
+   }, [isConnected]);
+
+
+
+   const cacheMessages = async (messagesToCache) => {
+    try {
+      await AsyncStorage.setItem('messages', JSON.stringify(messagesToCache));
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  const loadCachedMessages = async () => {
+    const cachedMessages = await AsyncStorage.getItem("messages") || [];
+    setMessages(JSON.parse(cachedMessages));
+  }
+
+  const onSend = (newMessages) => {
+    addDoc(collection(db, "messages"), newMessages[0])
+  }
+
+  const renderBubble = (props) => {
+    return <Bubble
+      {...props}
+      wrapperStyle={{
+        right: {
+          backgroundColor: "#000"
+        },
+        left: {
+          backgroundColor: "#FFF"
         }
-    }, []
-    );
+      }}
+    />
+  }
 
-    // Function to send a new message
-    const onSend = async (newMessage) => {
-        // Add the new message to the Firestore database
-        const newMessageRef = await addDoc(collection(db, "messages"), newMessage);
-        // If the message was added successfully, update the messages state and show an alert
-        if (newMessageRef.id) {
-          setMessages([newMessage, ...messages]);
-          Alert.alert(`The message "${newMessage}" has been sent.`);
-        }else{
-          Alert.alert("Unable to add. Please try later");
-        }
-      }
+  const renderInputToolbar = (props) => {
+    if (isConnected) return <InputToolbar {...props} />;
+    else return null;
+   }
 
-    // Function to handle sending a message
-    const handleMessageSend = (messages = []) => {
-        const newMessage = {
-          _id: uuidv4(),
-          text: messages[0]?.text || '',
-          createdAt: new Date(),
-          user: {
-            _id: userID,
-            name: name,
-            avatar: "link"
-          }
-        };
-        onSend(newMessage);
-      }
 
-    return (
-        // Set the background color of the container to the color passed in the route parameters
-        <View style={[styles.container, { backgroundColor: color }]}>
-        <GiftedChat
-          messages={messages}
-          onSend={handleMessageSend}
-        />
-      </View>
-    );
+
+  return (
+    <View style={[styles.mContainer, {backgroundColor: color}]}>
+    <GiftedChat
+      messages={messages}
+      renderBubble={renderBubble}
+      renderInputToolbar={renderInputToolbar}
+      onSend={messages => onSend(messages)}
+      user={{
+        _id: userID,
+        name: name
+    }}
+    />
+    { Platform.OS === 'android' ? <KeyboardAvoidingView behavior="height" /> : null }
+    </View>
+  )
 }
 
-// Define the styles for the Chat component
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  mContainer: {
+    flex: 1
+  }
 });
 
 export default Chat;
