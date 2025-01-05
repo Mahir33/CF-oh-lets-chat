@@ -22,21 +22,26 @@ const Chat = ({ route, navigation, db, isConnected }) => {
   }, []);
   
 
-  
+  // Initialize the unsubscribeMessages variable
   let unsubscribeMessages;
 
   useEffect(() => {
 
+    // Check if the device is connected to the internet
     if (isConnected === true) {
 
-      // unregister current onSnapshot() listener to avoid registering multiple listeners when
+      // Unregister current onSnapshot() listener to avoid registering multiple listeners when
       // useEffect code is re-executed.
       if (unsubscribeMessages) unsubscribeMessages();
       unsubscribeMessages = null;
 
+    // Create a query to get the messages collection from Firestore
     const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+    // Register the onSnapshot() listener to listen for changes in the messages collection
     unsubscribeMessages = onSnapshot(q, (docs) => {
+      // Initialize an empty array to store the new messages
       let newMessages = [];
+      // Loop through the documents in the collection and add them to the newMessages array
       docs.forEach(doc => {
         newMessages.push({
           id: doc.id,
@@ -44,19 +49,22 @@ const Chat = ({ route, navigation, db, isConnected }) => {
           createdAt: new Date(doc.data().createdAt.toMillis())
         })
       })
+      // Cache the new messages
       cacheMessages(newMessages);
+      // Update the messages state variable with the new messages
       setMessages(newMessages);
     });
   } else loadCachedMessages();
 
 
     return () => {
+      // Unsubscribe the onSnapshot() listener when the component is unmounted
       if (unsubscribeMessages) unsubscribeMessages();
     }
    }, [isConnected]);
 
 
-
+   // Function to cache messages
    const cacheMessages = async (messagesToCache) => {
     try {
       await AsyncStorage.setItem('messages', JSON.stringify(messagesToCache));
@@ -65,15 +73,18 @@ const Chat = ({ route, navigation, db, isConnected }) => {
     }
   }
 
+  // Function to load cached messages
   const loadCachedMessages = async () => {
     const cachedMessages = await AsyncStorage.getItem("messages") || [];
     setMessages(JSON.parse(cachedMessages));
   }
 
+  // Function to handle sending messages
   const onSend = (newMessages) => {
     addDoc(collection(db, "messages"), newMessages[0])
   }
 
+  // Function to render the chat bubble
   const renderBubble = (props) => {
     return <Bubble
       {...props}
@@ -88,13 +99,16 @@ const Chat = ({ route, navigation, db, isConnected }) => {
     />
   }
 
+  // Function to render the input toolbar
   const renderInputToolbar = (props) => {
+    // Check if the device is connected to the internet
     if (isConnected) return <InputToolbar {...props} />;
+    // If the device is not connected to the internet, disable the input toolbar
     else return null;
    }
 
 
-
+  //  Return the GiftedChat component with the necessary props
   return (
     <View style={[styles.mContainer, {backgroundColor: color}]}>
     <GiftedChat
