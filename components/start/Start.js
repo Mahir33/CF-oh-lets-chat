@@ -54,6 +54,7 @@ const Start = ({ navigation }) => {
     })
         .catch((error) => {
             Alert.alert("Unable to sign in, try later again.");
+            console.error(error);
             })
       // Clear the name input after navigation
       setName('');
