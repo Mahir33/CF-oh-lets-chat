@@ -36,10 +36,6 @@ const Start = ({ navigation }) => {
 
   // Function to handle the enter chat button.
   // This function will be called when the user presses the enter chat button.
-  // If the name input is empty, an error message will be displayed.
-  // If the name input is not empty and its length is at least longer than 2 characters, the user will be navigated to the chat screen.
-  // The user's name and selected background color will be passed to the chat screen.
-  // The name input will be cleared after navigation.
   const signInUser = () => {
     // If the name input is empty or less than 2 characters, display an error message.
     if (name === '' || name.length <= 2) {
@@ -71,7 +67,7 @@ const Start = ({ navigation }) => {
 
   return (
     <ImageBackground 
-      source={require('../../assets/background.png')} 
+      source={require('../assets/background.png')} 
       style={styles.backgroundMain}
     > 
       <View>

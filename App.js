@@ -1,5 +1,3 @@
-import { StyleSheet} from 'react-native';
-
 // Importing environment variables
 import { 
   API_KEY, 
@@ -10,46 +8,46 @@ import {
   APP_ID 
 } from '@env';
 
-// Importing react-navigation
+// Import the screens
+import Start from './components/Start';
+import Chat from './components/Chat';
+
+// Import react Navigation
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-// Importing firebase
+// Import Firebase
 import { initializeApp } from "firebase/app";
-import { getFirestore, enableNetwork, disableNetwork } from "firebase/firestore";
+import { getFirestore, disableNetwork, enableNetwork } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+import { LogBox, Alert } from 'react-native';
 
-// Importing netinfo
+// Import the NetInfo hook
 import { useNetInfo } from "@react-native-community/netinfo";
+import { useEffect } from "react";
 
-// Importing react hooks
-import { useEffect } from 'react';
+// Ignore the warning message
+LogBox.ignoreLogs(["AsyncStorage has been extracted from"]);
 
-// Importing components
-import Start from './components/start/Start.js';
-import Chat from './components/chat/Chat.js';
-
-// Creating a stack navigator
+// Create the navigator
 const Stack = createNativeStackNavigator();
 
-
-
-export default function App() {
-
-    // Check the network status
-    const netInfo = useNetInfo();
-
-    // Check if the device is connected to the internet
-    // If the device is not connected to the internet, disable the network
+const App = () => {
+  // Check the network connection status
+  const connectionStatus = useNetInfo();
     useEffect(() => {
-      if (netInfo.isConnected === false) {
-        alert.alert("Connection lost")
-        disableNetwork(db);
-      } else if (netInfo.isConnected === true) {
-        enableNetwork(db);
-      }
-    }, [netInfo.isConnected]);
+      // Check if the user is connected to the internet
+    if (connectionStatus.isConnected === false) {
+      // Display an alert if the user is not connected to the internet
+      Alert.alert("Connection Lost!!");
+      // Disable the Firestore network
+      disableNetwork(db);
+    } else if (connectionStatus.isConnected === true) {
+      enableNetwork(db);
+    }
+  }, [connectionStatus.isConnected]);
 
-  // Secured firebase configuration
+  // Web app's Firebase configuration
   const firebaseConfig = {
     apiKey: API_KEY,
     authDomain: AUTH_DOMAIN,
@@ -58,37 +56,39 @@ export default function App() {
     messagingSenderId: MESSAGING_SENDER_ID,
     appId: APP_ID
   };
-  
+
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
 
   // Initialize Cloud Firestore and get a reference to the service
   const db = getFirestore(app);
 
+  // Initialize Firebase Storage handler
+  const storage = getStorage(app);
+ 
+
 
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Start">
-        <Stack.Screen 
-          name="Start" 
-          component={Start} />
-        <Stack.Screen 
-          name="Chat" 
-         >
-          { props => <Chat isConnected={netInfo.isConnected}  db={db} {...props} />}
-         </Stack.Screen> 
+        initialRouteName="Start"
+      >
+        <Stack.Screen
+          name="Start"
+          component={Start}
+        />
+        <Stack.Screen
+          name="Chat"
+          >
+         {props => <Chat 
+            isConnected={connectionStatus.isConnected} 
+            db={db} 
+            storage={storage}
+            {...props} />}
+        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
