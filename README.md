@@ -2,9 +2,9 @@
 
 ## About the app:
 
-In this mobile app, there is a start page for users to enter their name, choose a background color and a button to start chatting.  
-The button links the users to the second page where they are able to see their conversation, type in an input box and submit new messages.  
-Users are also able to send images and location data. All data gets stored online and offline.
+This mobile app has a start page where users can enter their names, choose a background color, and click a button to start chatting.  
+The button links the users to the second page, where they can view their conversation, type in an input box, and submit new messages.  
+Users are also able to send images and location data. All data is stored online and offline.
 
 ## User Stories
 
@@ -36,7 +36,7 @@ Follow these steps to set up the project locally:
 
 1. Clone the repository:
    `git clone https://github.com/Mahir33/cf-oh-lets-chat.git`
-   `cd CF-oh-lets-chat`
+   `cd cf-oh-lets-chat`
 
 2. Install dependencies:
    Make sure to have [Node.js v18.20.4] (https://nodejs.org/en/learn/getting-started/how-to-install-nodejs) installed. Then run this command in a terminal to install the dependencies in the project folder:
