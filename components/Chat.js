@@ -138,6 +138,9 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             }}
+            accessible={true}
+            accessibilityLabel="Map view"
+            accessibilityHint="Displays the location shared in the message"
           />
       );
     }
@@ -150,7 +153,11 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
     style={[
       styles.container,
       { backgroundColor: color}
-    ]}>
+      ]}
+      accessible={true}
+      accessibilityLabel="Chat screen"
+      accessibilityHint="Displays the chat messages"
+    >
       <GiftedChat
         messages={messages}
         renderBubble={renderBubble}
@@ -162,6 +169,9 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
           _id: userID,
           name: name,
         }}
+        accessible={true}
+        accessibilityLabel="Chat messages"
+        accessibilityHint="Displays the chat messages and input toolbar"
       />
     { Platform.OS === 'android' ? <KeyboardAvoidingView behavior="height" /> : null }
     

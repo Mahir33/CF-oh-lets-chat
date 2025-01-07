@@ -69,6 +69,9 @@ const Start = ({ navigation }) => {
     <ImageBackground 
       source={require('../assets/background.png')} 
       style={styles.backgroundMain}
+      accessible={true}
+      accessibilityLabel="Background image"
+      accessibilityHint="Displays the background image of the start screen"
     > 
       <View>
         <Text style={styles.appTitle}>Oh Lets Chat</Text>
